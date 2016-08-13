@@ -4,7 +4,6 @@ import numpy as np
 from scipy.sparse import csr_matrix, coo_matrix
 
 def create_rating_matrix(challenges_file_loc, submissions_file_loc):
-    #challenges_df = pd.read_csv(challenges_file_loc)
     print 'Reading submissions.csv'
     submissions_df = pd.read_csv(submissions_file_loc)
 
@@ -33,42 +32,19 @@ def create_rating_matrix(challenges_file_loc, submissions_file_loc):
     shape = (len(challenge_dict), len(hacker_dict))
     data = np.array(data)
     matrix = coo_matrix((data, (rows, cols)), shape=shape)
-    print matrix
-    print matrix.get_shape()
-    print matrix.data
+
     matrix = matrix.tocsr()
-    print matrix
-    print matrix.data
-    print matrix.toarray()
+
     return matrix, hacker_dict, challenge_dict
 
 
 def get_item_similarity_matrix(rating_matrix):
     print 'Creating Item similarity matrix'
-    n_items = rating_matrix.get_shape()[0]
-    similarity_matrix = np.zeros((n_items, n_items))
-    count = 0
+    
     A = rating_matrix.astype(np.int64)
-    print A.shape
     m = sparse_corrcoef(A)
-    print m.shape
+
     return m
-
-    for i in xrange(n_items):
-        if count % 100 == 0:
-            print count
-        count += 1
-        vector_i = rating_matrix.getrow(i).toarray().flatten()
-        #print vector_i
-        #print vector_i.shape
-        for j in xrange(n_items):
-            if similarity_matrix[j][i] != 0:
-                similarity_matrix[i][j] = similarity_matrix[j][i]
-                continue
-            vector_j = rating_matrix.getrow(j).toarray().flatten()
-            similarity_matrix[i][j] = np.corrcoef(vector_i, vector_j)[0,1]
-
-    return similarity_matrix
 
 def sparse_corrcoef(A, B=None):
 
